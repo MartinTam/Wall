@@ -33,6 +33,24 @@ BRICK_ROW = [   pygame.Rect(5, 10, BRICK_WIDTH, BRICK_HEIGHT),
 FPS = 60
 FRAMES = 0
 
+def colision(oneShot, BRICK_ROW):
+
+    for x in BRICK_ROW:
+        if oneShot.colliderect(x):
+            return x
+            break
+    
+    return 0
+        
+        
+
+def anotherRow():
+    BRICK_ROW.append(pygame.Rect(5, 10, BRICK_WIDTH, BRICK_HEIGHT))
+    BRICK_ROW.append(pygame.Rect(105, 10, BRICK_WIDTH, BRICK_HEIGHT))
+    BRICK_ROW.append(pygame.Rect(205, 10, BRICK_WIDTH, BRICK_HEIGHT))
+    BRICK_ROW.append(pygame.Rect(305, 10, BRICK_WIDTH, BRICK_HEIGHT))
+    BRICK_ROW.append(pygame.Rect(405, 10, BRICK_WIDTH, BRICK_HEIGHT))
+
 def movement(key_pressed, position):
 
     if key_pressed[pygame.K_RIGHT] and position.x + SHIP_WIDTH < WIDTH:
@@ -50,13 +68,13 @@ def handle_bullet(bullet):
 def draw(position, bullet, score, move):
 
     WIN.fill(BLACK)
-    #WIN.blit(BG, (-1000,-1000))
     WIN.blit(SHIP, (position.x, position.y))
     
     if move == True:
         for x in BRICK_ROW:
-            x.y += 20
+            x.y += 25
             pygame.draw.rect(WIN, WHITE, x)
+        anotherRow()
     else:    
         for x in BRICK_ROW:
             pygame.draw.rect(WIN, WHITE, x)
@@ -64,11 +82,12 @@ def draw(position, bullet, score, move):
     for oneShot in bullet:
         
         pygame.draw.rect(WIN, YELLOW, oneShot)
-        if oneShot.y < 0:
+        if oneShot.y < 0 or colision(oneShot,BRICK_ROW):
             bullet.remove(oneShot)
+            BRICK_ROW.remove(colision(oneShot,BRICK_ROW))
             score[0] += 1
     
-    
+
     font = pygame.font.SysFont('ComicSans', 30)
     text = font.render('Score: {0}'.format(score[0]), True, WHITE)
     WIN.blit(text, (10, HEIGHT-35))
@@ -90,7 +109,7 @@ def main():
         clock.tick(FPS)
         frames += 1
         move = False
-        if frames == 60:
+        if frames == 180:
             move = True
             frames = 0
 
