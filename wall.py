@@ -102,11 +102,16 @@ def gameOver(score):
     WIN.fill(BLACK)
     WIN.blit(BG, (0,0))
 
+    playButton = pygame.Rect(190, 270, 125, 20)
+    pygame.draw.rect(WIN, BLACK, playButton)
+
     gameOverFont = pygame.font.SysFont('ComicSans', 50)
     playExit = pygame.font.SysFont('ComicSans', 30)
+    
     gameOver = gameOverFont.render('GAME OVER', True, WHITE)
     play = playExit.render('PLAY AGAIN', True, WHITE)
     exitGame = playExit.render('EXIT', True, WHITE)
+    
     WIN.blit(gameOver, (WIDTH//2 - 105, HEIGHT//2 - 100))
     WIN.blit(play, (WIDTH//2 - 60, HEIGHT//2 - 30))
     WIN.blit(exitGame, (WIDTH//2 - 18, HEIGHT//2 + 5))
@@ -131,7 +136,7 @@ def main():
         clock.tick(FPS)
         frames += 1
         move = False
-        if frames == 180:
+        if frames == 5:
             '''
                 Every 180 frames (3 seconds) the wall will move down !!!
             '''
