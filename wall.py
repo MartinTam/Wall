@@ -9,10 +9,12 @@ SHIP_WIDTH = 72
 SHIP_HEIGHT = 72
 BRICK_WIDTH = 90
 BRICK_HEIGHT = 20
+END_LINE = 475
 
 WHITE = (255,255,255)
 BLACK = (0,0,0)
 YELLOW = (255,255,0)
+BRICK_COLOR = (212, 212, 212)
 
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Wall")
@@ -23,15 +25,12 @@ SHIP = pygame.transform.scale( pygame.image.load(os.path.join('images', 'ship.pn
 VEL = 10
 VEL_BULLET = 15
 
-BRICK_ROW = [   pygame.Rect(5, 10, BRICK_WIDTH, BRICK_HEIGHT),
-                pygame.Rect(105, 10, BRICK_WIDTH, BRICK_HEIGHT),
-                pygame.Rect(205, 10, BRICK_WIDTH, BRICK_HEIGHT),
-                pygame.Rect(305, 10, BRICK_WIDTH, BRICK_HEIGHT),
-                pygame.Rect(405, 10, BRICK_WIDTH, BRICK_HEIGHT)
-            ]
+BRICK_ROW = []
+
+for x in range(5,505,100):
+    BRICK_ROW.append( pygame.Rect(x, 0 - BRICK_HEIGHT, BRICK_WIDTH, BRICK_HEIGHT) )
 
 FPS = 60
-FRAMES = 0
 
 def colision(oneShot, BRICK_ROW):
 
@@ -41,15 +40,13 @@ def colision(oneShot, BRICK_ROW):
             break
     
     return 0
-        
-        
+              
 
 def anotherRow():
-    BRICK_ROW.append(pygame.Rect(5, 10, BRICK_WIDTH, BRICK_HEIGHT))
-    BRICK_ROW.append(pygame.Rect(105, 10, BRICK_WIDTH, BRICK_HEIGHT))
-    BRICK_ROW.append(pygame.Rect(205, 10, BRICK_WIDTH, BRICK_HEIGHT))
-    BRICK_ROW.append(pygame.Rect(305, 10, BRICK_WIDTH, BRICK_HEIGHT))
-    BRICK_ROW.append(pygame.Rect(405, 10, BRICK_WIDTH, BRICK_HEIGHT))
+    
+    for x in range(5,505,100):
+        BRICK_ROW.append(pygame.Rect(x, 0 - BRICK_HEIGHT, BRICK_WIDTH, BRICK_HEIGHT))    
+    
 
 def movement(key_pressed, position):
 
@@ -65,19 +62,26 @@ def handle_bullet(bullet):
         oneShot.y -= VEL_BULLET
 
 
-def draw(position, bullet, score, move):
+def draw(position, bullet, score, move, end):
 
     WIN.fill(BLACK)
+    WIN.blit(BG, (0,0))
     WIN.blit(SHIP, (position.x, position.y))
     
     if move == True:
         for x in BRICK_ROW:
             x.y += 25
-            pygame.draw.rect(WIN, WHITE, x)
+            pygame.draw.rect(WIN, BRICK_COLOR, x)
+            if x.y >= END_LINE:
+                end[0] = 1
+                return end[0]
         anotherRow()
     else:    
         for x in BRICK_ROW:
-            pygame.draw.rect(WIN, WHITE, x)
+            pygame.draw.rect(WIN, BRICK_COLOR, x)
+            if x.y >= END_LINE:
+                end[0] = 1
+                return end[0]
     
     for oneShot in bullet:
         
@@ -94,15 +98,33 @@ def draw(position, bullet, score, move):
 
     pygame.display.update()
 
+def gameOver(score):
+    WIN.fill(BLACK)
+    WIN.blit(BG, (0,0))
+
+    gameOverFont = pygame.font.SysFont('ComicSans', 50)
+    playExit = pygame.font.SysFont('ComicSans', 30)
+    gameOver = gameOverFont.render('GAME OVER', True, WHITE)
+    play = playExit.render('PLAY AGAIN', True, WHITE)
+    exitGame = playExit.render('EXIT', True, WHITE)
+    WIN.blit(gameOver, (WIDTH//2 - 105, HEIGHT//2 - 100))
+    WIN.blit(play, (WIDTH//2 - 60, HEIGHT//2 - 30))
+    WIN.blit(exitGame, (WIDTH//2 - 18, HEIGHT//2 + 5))
+
+    pygame.display.update()
+
+
 def main():
 
     run = True
     clock = pygame.time.Clock()
     
-    position = pygame.Rect(250,475, SHIP_WIDTH, SHIP_HEIGHT)
+    position = pygame.Rect(250, END_LINE, SHIP_WIDTH, SHIP_HEIGHT)
     bullet = []
     score = [0]
     frames = 0
+
+    end = [0]
 
     while(run):
 
@@ -110,6 +132,9 @@ def main():
         frames += 1
         move = False
         if frames == 180:
+            '''
+                Every 180 frames (3 seconds) the wall will move down !!!
+            '''
             move = True
             frames = 0
 
@@ -132,7 +157,14 @@ def main():
             
         key_pressed = pygame.key.get_pressed()
         movement(key_pressed, position)
-        draw(position, bullet, score, move)
+
+        if end[0] == 0:
+            draw(position, bullet, score, move, end)
+            if end[0] == 1:
+                gameOver(score)
+        
+        if end[0] == 1:
+            gameOver(score)
 
     pygame.quit()
 
