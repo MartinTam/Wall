@@ -16,6 +16,9 @@ BLACK = (0,0,0)
 YELLOW = (255,255,0)
 BRICK_COLOR = (212, 212, 212)
 
+ARROW_POS_PLAY = (165,266)
+ARROW_POS_EXIT = (205, 300)
+
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Wall")
 
@@ -25,12 +28,20 @@ SHIP = pygame.transform.scale( pygame.image.load(os.path.join('images', 'ship.pn
 VEL = 10
 VEL_BULLET = 15
 
+ARROW = pygame.transform.scale( pygame.image.load(os.path.join('images', 'arrow.png')), (15, 25) )
+
 BRICK_ROW = []
 
 for x in range(5,505,100):
-    BRICK_ROW.append( pygame.Rect(x, 0 - BRICK_HEIGHT, BRICK_WIDTH, BRICK_HEIGHT) )
+        BRICK_ROW.append( pygame.Rect(x, 0 - BRICK_HEIGHT, BRICK_WIDTH, BRICK_HEIGHT) )
+
 
 FPS = 60
+
+def restartGame():
+    BRICK_ROW = []
+    for x in range(5,505,100):
+        BRICK_ROW.append( pygame.Rect(x, 0 - BRICK_HEIGHT, BRICK_WIDTH, BRICK_HEIGHT) )
 
 def colision(oneShot, BRICK_ROW):
 
@@ -68,6 +79,7 @@ def draw(position, bullet, score, move, end):
     WIN.blit(BG, (0,0))
     WIN.blit(SHIP, (position.x, position.y))
     
+
     if move == True:
         for x in BRICK_ROW:
             x.y += 25
@@ -98,12 +110,12 @@ def draw(position, bullet, score, move, end):
 
     pygame.display.update()
 
-def gameOver(score):
+def gameOver(score, button):
     WIN.fill(BLACK)
     WIN.blit(BG, (0,0))
 
     playButton = pygame.Rect(190, 270, 125, 20)
-    pygame.draw.rect(WIN, BLACK, playButton)
+    exitButton = pygame.Rect(230, 305, 50, 20)
 
     gameOverFont = pygame.font.SysFont('ComicSans', 50)
     playExit = pygame.font.SysFont('ComicSans', 30)
@@ -114,7 +126,14 @@ def gameOver(score):
     
     WIN.blit(gameOver, (WIDTH//2 - 105, HEIGHT//2 - 100))
     WIN.blit(play, (WIDTH//2 - 60, HEIGHT//2 - 30))
-    WIN.blit(exitGame, (WIDTH//2 - 18, HEIGHT//2 + 5))
+    WIN.blit(exitGame, (WIDTH//2 - 20, HEIGHT//2 + 5))
+
+    if button[0] == 0:
+        WIN.blit(ARROW, ARROW_POS_PLAY)
+    
+    if button[0] == 1:
+        WIN.blit(ARROW, ARROW_POS_EXIT)
+
 
     pygame.display.update()
 
@@ -128,6 +147,7 @@ def main():
     bullet = []
     score = [0]
     frames = 0
+    button = [0]
 
     end = [0]
 
@@ -158,6 +178,15 @@ def main():
                     if len(bullet) < 1:
                         bullet.append(shot)
                 
+                if event.key == pygame.K_UP and end[0] == 1:
+
+                    button[0] = 0
+
+                if event.key == pygame.K_DOWN and end[0] == 1:
+
+                    button[0] = 1
+
+
         handle_bullet(bullet)
             
         key_pressed = pygame.key.get_pressed()
@@ -165,11 +194,10 @@ def main():
 
         if end[0] == 0:
             draw(position, bullet, score, move, end)
-            if end[0] == 1:
-                gameOver(score)
         
         if end[0] == 1:
-            gameOver(score)
+            gameOver(score, button)
+        
 
     pygame.quit()
 
