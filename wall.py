@@ -185,6 +185,17 @@ def main():
                 if event.key == pygame.K_DOWN and end[0] == 1:
 
                     button[0] = 1
+                
+                if event.key == pygame.K_RETURN and end[0] == 1:
+
+                    if button[0] == 0:
+                        restartGame()
+                        score[0] = 0
+                        end[0] = 0
+                        print('restart')
+
+                    if button[0] == 1:
+                        run = False
 
 
         handle_bullet(bullet)
