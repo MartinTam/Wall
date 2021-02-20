@@ -39,7 +39,7 @@ for x in range(5,505,100):
 FPS = 60
 
 def restartGame():
-    BRICK_ROW = []
+    BRICK_ROW.clear()
     for x in range(5,505,100):
         BRICK_ROW.append( pygame.Rect(x, 0 - BRICK_HEIGHT, BRICK_WIDTH, BRICK_HEIGHT) )
 
@@ -114,9 +114,6 @@ def gameOver(score, button):
     WIN.fill(BLACK)
     WIN.blit(BG, (0,0))
 
-    playButton = pygame.Rect(190, 270, 125, 20)
-    exitButton = pygame.Rect(230, 305, 50, 20)
-
     gameOverFont = pygame.font.SysFont('ComicSans', 50)
     playExit = pygame.font.SysFont('ComicSans', 30)
     
@@ -134,7 +131,6 @@ def gameOver(score, button):
     if button[0] == 1:
         WIN.blit(ARROW, ARROW_POS_EXIT)
 
-
     pygame.display.update()
 
 
@@ -143,12 +139,11 @@ def main():
     run = True
     clock = pygame.time.Clock()
     
-    position = pygame.Rect(250, END_LINE, SHIP_WIDTH, SHIP_HEIGHT)
+    position = pygame.Rect(220, END_LINE, SHIP_WIDTH, SHIP_HEIGHT)
     bullet = []
     score = [0]
     frames = 0
     button = [0]
-
     end = [0]
 
     while(run):
@@ -156,7 +151,7 @@ def main():
         clock.tick(FPS)
         frames += 1
         move = False
-        if frames == 5:
+        if frames == 180:
             '''
                 Every 180 frames (3 seconds) the wall will move down !!!
             '''
@@ -171,7 +166,7 @@ def main():
             
             if event.type == pygame.KEYDOWN:
 
-                if event.key == pygame.K_SPACE:
+                if event.key == pygame.K_SPACE and end[0] == 0:
 
                     shot = pygame.Rect(position.x + SHIP_WIDTH//2 - 5, position.y, 5, 10)
                     
@@ -190,26 +185,23 @@ def main():
 
                     if button[0] == 0:
                         restartGame()
+                        position.x = 220
+                        position.y = END_LINE
                         score[0] = 0
                         end[0] = 0
-                        print('restart')
 
                     if button[0] == 1:
                         run = False
 
-
-        handle_bullet(bullet)
-            
-        key_pressed = pygame.key.get_pressed()
-        movement(key_pressed, position)
-
         if end[0] == 0:
+            handle_bullet(bullet)
+            key_pressed = pygame.key.get_pressed()
+            movement(key_pressed, position)
             draw(position, bullet, score, move, end)
         
         if end[0] == 1:
             gameOver(score, button)
         
-
     pygame.quit()
 
 main()
